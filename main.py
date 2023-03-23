@@ -33,6 +33,37 @@ def read_companies():
     return jsonify(data)
 
 
+@app.route("/companies", methods=["POST"])
+def write_companies():
+    """
+    Writes data to a MongoDB database.
+    Receives json data from a ``POST`` request.
+    Afterwards the data is being written (inserted) into the `companies` collection
+    of the `DataPurification` Mongo database.
+
+    Returns a status message in the development server terminal and client browser about the success of the operation.
+    """
+
+    # Connect to a MongoDB server and make a reference to the "DataPurification" database, existent or not
+    data_purification_db = MongoClient()["DataPurification"]
+
+    # Receive data in json format
+    data = request.get_json()
+
+    # Write (insert) the data into the "companies" collection, existent or not
+    success = data_purification_db["companies"].insert_many(data)
+
+    # Returns a status message in the development server terminal and client browser about the success of the operation.
+    if success:
+        message = "Process finished. Write successful. No errors encountered."
+        print(message)
+        return message
+    else:
+        message = "Process finished, with errors. Writing partially or completely unsuccessful."
+        print(message)
+        return message
+
+
 # Run the Flask app in development mode
 if __name__ == "__main__":
     app.run(debug=True)
