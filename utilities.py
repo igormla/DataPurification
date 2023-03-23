@@ -87,3 +87,73 @@ class TransformText:
         return data
 
 
+class TransformData:
+    """Utility class for transforming data."""
+
+    @staticmethod
+    def set_first_column(data: pd.DataFrame, column: str):
+        """
+        Sets the desired first column on a copy of the provided Pandas DataFrame.
+
+        :param data: Provide data in Pandas DataFrame type.
+        :param column: Chosen column in string type of the provided data.
+        :return: Returns modified copy of the original provided DataFrame.
+        """
+
+        # Extract the chosen column in a copy of the provided data and insert it at the beginning (or the first index)
+        processed_data = data.copy()
+        chosen_column = processed_data.pop(column)
+        processed_data.insert(0, column, chosen_column)
+
+        # Return the modified copy of the original provided DataFrame
+        return processed_data
+
+    @staticmethod
+    def reorder(data: pd.DataFrame):
+        """
+        Sets the value of first column in each record as a key in a new dictionary.
+        Afterwards, sets the column names and values of the rest of the records as the values of the new dictionary,
+        but does that in "key: value" model.
+
+        :param data: Provide data in Pandas DataFrame type.
+        :return: Returns a list of dictionaries with the modified and reordered data.
+        """
+        # New list for storing the modified dictionaries
+        processed_data = []
+
+        # Convert the provided DataFrame into a list of dictionaries
+        records = data.to_dict(orient="records")
+
+        # Iterate over the converted data
+        for record in records:
+
+            # Get the name of the first key in the first dictionary
+            first_key = next(iter(record))
+
+            # Extract the value of the first key in the first dictionary
+            first_value = record.pop(first_key)
+
+            # Set the "first_value" as the key in a dictionary and set the modified dictionary in the current
+            # iteration as value in a new dictionary, and at the end append the new dictionary in the created
+            # processed_data list
+            processed_data.append({first_value: record})
+
+        # Return the process_data list
+        return processed_data
+
+    @staticmethod
+    def process_data(data: pd.DataFrame, column: str):
+        """
+        Processes the provided data in Pandas DataFrame format in the following order:
+
+        1. Sets the first column of the DataFrame based on the provided ``column`` argument.
+
+        2. Reorders the data based on the algorithm in the ``reorder()`` method.
+
+        :param data: Provide data in Pandas DataFrame type.
+        :param column: Chosen column in string type of the provided data.
+        :return: Returns the processed data.
+        """
+        processed_data = TransformData.set_first_column(data, column)
+        processed_data = TransformData.reorder(processed_data)
+        return processed_data
